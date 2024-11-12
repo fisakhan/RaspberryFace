@@ -1,4 +1,4 @@
-# RaspberryFace
+# RaspberryFace ![faspberryface1](https://github.com/user-attachments/assets/10c9be31-61c5-4e30-9a2a-0598b7a5bb03)
 Real-Time Embedded Face Recognition on Raspberry Pi using OpenCV and TensorFlow Lite (TFLite)
 
 ### How to run?
