@@ -16,6 +16,7 @@ SCRFD.TFLITE FACE DETECTOR
 w600k_r50.TFLITE FACE RECOGNIZER
 """
 
+import os
 import cv2
 import copy
 import time
@@ -28,11 +29,17 @@ import tkinter as tk
 #import tensorflow as tf
 import tflite_runtime.interpreter as tflite
 
-from scrfd.scrfd_tflite import SCRFD# scrfd face detector
+from scrfd.scrfd_tflite import SCRFD# scrfd face detector (tlite version)
 from onnx_insightface import norm_crop as alignment# alignment of face
 
 vectorizer = 'BFL'# represents buffalo from deepinsight/insightface/model_zoo
 dir_models = './models'# where can I find pre-trained models?
+write_faces_to_disk = True
+
+if write_faces_to_disk:
+    # Create a new directory if it does not exist
+    if not os.path.exists("faces_written"): 
+        os.makedirs("faces_written")
 
 
 picam2 = Picamera2()
@@ -371,13 +378,15 @@ while True:
                 frame_BGR, "{}".format(id_fname),
                 (keypoints[indx][0].astype(np.int64)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 1, cv2.LINE_AA)
             # Generate writing-crop
-            generate_writing_crop(frame_BGR_orig, bboxes[indx].astype(np.int64), id_fname)
+            if write_faces_to_disk:
+                generate_writing_crop(frame_BGR_orig, bboxes[indx].astype(np.int64), id_fname)
         else:
             cv2.putText(
                 frame_BGR, "{}".format("?"),
                 (keypoints[indx][0].astype(np.int64)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 140, 255), 1, cv2.LINE_AA)
             # Generate writing-crop
-            generate_writing_crop(frame_BGR_orig, bboxes[indx].astype(np.int64), "?")
+            if write_faces_to_disk:
+                generate_writing_crop(frame_BGR_orig, bboxes[indx].astype(np.int64), "?")
         
         #diff = np.linalg.norm(feature_vector_onnx - feature_vector_tflite)
         #print("diff: ", diff)
