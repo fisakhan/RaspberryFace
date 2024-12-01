@@ -115,9 +115,9 @@ def enroll_identity(fv):
     
     # function to display user text when button is clicked
     def clicked():
-        global df_names
-        global enrolled_fvectors
-        print(df_names)
+        global df_id_names
+        global np_id_fvectors
+        print(df_id_names)
         
         fname = txt_fname.get()
         mname = txt_mname.get()
@@ -142,17 +142,17 @@ def enroll_identity(fv):
             
             print("names: ", names)
             
-            df_names.loc[len(df_names.index)] = names
-            df_names.to_pickle("id_names.pkl")
-            fvs = np.vstack([enrolled_fvectors, fv])
+            df_id_names.loc[len(df_id_names.index)] = names
+            df_id_names.to_pickle("id_names.pkl")
+            fvs = np.vstack([np_id_fvectors, fv])
             np.save("scrfd_500m_bnkps_480x640_model_float16_quant_w600k_r50_float32_features", fvs)
             
             print(fname + " " + " " + mname + " " + lname + " " + number)
             
             # LOAD UPDATED ENROLLED IDENTITIES
             print("\n\nLoading updated database of enrolled identities...")
-            df_names = pd.read_pickle("./id_names.pkl")
-            enrolled_fvectors = np.load("scrfd_500m_bnkps_480x640_model_float16_quant_w600k_r50_float32_features.npy")
+            df_id_names = pd.read_pickle("./id_names.pkl")
+            np_id_fvectors = np.load("scrfd_500m_bnkps_480x640_model_float16_quant_w600k_r50_float32_features.npy")
 
             message = "Done"
             lbl_message.configure(text = message)
@@ -253,10 +253,10 @@ if vectorizer == 'BFL':
 
 '''
 # update and write to disk
-df_names = df_names.head(2)
-df_names.to_pickle("./id_names.pkl")
-enrolled_fvectors = enrolled_fvectors[0:2]
-np.save("./scrfd_500m_bnkps_480x640_model_float16_quant_w600k_r50_float32_features.npy", enrolled_fvectors)
+df_id_names = df_id_names.head(2)
+df_id_names.to_pickle("./id_names.pkl")
+np_id_fvectors = np_id_fvectors[0:2]
+np.save("./scrfd_500m_bnkps_480x640_model_float16_quant_w600k_r50_float32_features.npy", np_id_fvectors)
 '''
 #import sys
 #sys.exit(1)
@@ -359,21 +359,21 @@ while True:
             (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1, cv2.LINE_AA)
     
         # calculate the difference array (euclidian distances)
-        #difference_array = np.absolute(enrolled_fvectors-feature_vector_onnx)
-        #difference_array = np.absolute(np.linalg.norm(feature_vector_onnx - enrolled_fvectors, axis=1))
+        #difference_array = np.absolute(np_id_fvectors-feature_vector_onnx)
+        #difference_array = np.absolute(np.linalg.norm(feature_vector_onnx - np_id_fvectors, axis=1))
         difference_array = np.linalg.norm(feature_vector_tflite - np_id_fvectors, axis=1)
         
         # find the index of minimum element from the array
         index = difference_array.argmin()
         dist = difference_array[index]
         #print("difference_array: ", difference_array)
-        #print("Nearest element to the given values is : ", enrolled_fvectors[index])
+        #print("Nearest element to the given values is : ", np_id_fvectors[index])
         #print("Index of nearest value is : ", index)
         
         # Display the name of recognized person
-        #print(df_names.iloc[index]["FirstName"])
+        #print(df_id_names.iloc[index]["FirstName"])
         if dist < 1.0000:
-            id_fname = df_names.iloc[index]["FirstName"]
+            id_fname = df_id_names.iloc[index]["FirstName"]
             cv2.putText(
                 frame_BGR, "{}".format(id_fname),
                 (keypoints[indx][0].astype(np.int64)), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 1, cv2.LINE_AA)
